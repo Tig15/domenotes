@@ -14,15 +14,15 @@ import {
   getAllTasks,
 } from "../services/firestoreServices";
 import Icon from "react-native-vector-icons/FontAwesome";
-import firebaseApp from "../services/firebaseAuth";
+import firebaseApp, { signOutUser } from "../services/firebaseAuth";
 import { Colors } from "../assets/Colors";
-import { getAuth } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
+import TaskItem from "../components/TaskItem";
 
 const DomeNotes = () => {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
-  const navigation = useNavigation()
+  const navigation = useNavigation();
 
   useEffect(() => {
     loadTasks();
@@ -53,55 +53,50 @@ const DomeNotes = () => {
     }
   };
 
-  const handleDeleteTask = async (taskId) => {
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-
-    setTasks(updatedTasks);
-
-    try {
-      await deleteTask(taskId);
-    } catch (error) {
-      setTasks(tasks);
-      console.log("Delete Task Error:", error.message);
-    }
-  };
-
   const handleToggleComplete = async (taskId, completed) => {
     try {
-      await updateTask(taskId, { completed: !completed });
+      const updatedTask = { completed: !completed };
+      await updateTask(taskId, updatedTask);
       await loadTasks();
     } catch (error) {
       console.log("Update Task Error:", error.message);
     }
   };
-
-  const renderTaskItem = ({ item }) => {
-    return (
-      <TouchableOpacity
-        style={[styles.taskItem, item.completed && styles.completedTask]}
-        onPress={() => handleToggleComplete(item.id, item.completed)}
-      >
-        <Text style={styles.taskTitle}>{item.title}</Text>
-        <TouchableOpacity onPress={() => handleDeleteTask(item.id)}>
-          <Icon name="trash" size={20} color="#FF6347" />
-        </TouchableOpacity>
-      </TouchableOpacity>
-    );
+  
+  const handleEditTask = async (taskId, updatedTitle) => {
+    try {
+      await updateTask(taskId, { title: updatedTitle });
+      await loadTasks();
+    } catch (error) {
+      console.log("Edit Task Error:", error.message);
+    }
   };
+  
+  const handleDeleteTask = async (taskId) => {
+    try {
+      await deleteTask(taskId);
+      setTasks(tasks.filter((task) => task.id !== taskId));
+    } catch (error) {
+      console.log("Delete Task Error:", error.message);
+    }
+  };
+  
 
   const handleLogout = async () => {
     try {
-      const auth = getAuth(firebaseApp)
-      await auth.signOut();
-      navigation.reset("Login")
+      await signOutUser();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "Auth" }],
+      });
     } catch (error) {
-      console.log('Logout Error:', error.message);
+      console.error("Sign-out error:", error.message);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Todo List</Text>
+      <Text style={styles.header}>Your Dome Notes List</Text>
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -110,13 +105,24 @@ const DomeNotes = () => {
           onChangeText={(text) => setNewTask(text)}
         />
         <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
-          <Icon name="plus" size={20} color="#fff" />
+          <Icon name="plus" size={16} color="#fff" />
         </TouchableOpacity>
       </View>
       <FlatList
         data={tasks}
-        renderItem={renderTaskItem}
-        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TaskItem
+          key={item.id}
+            item={item}
+            onDeleteTask={handleDeleteTask}
+            onToggleComplete={handleToggleComplete}
+            onEditTask={handleEditTask}
+          />
+        )}
+        keyExtractor={(item) => item.id.toString()}
+        ListEmptyComponent={
+          <Text style={styles.emptyListText}>No notes added yet.</Text>
+        }
         style={styles.taskList}
       />
       <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
@@ -139,48 +145,56 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     textAlign: "center",
     color: Colors.primary,
+    marginTop:10
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 8,
+    padding: 10,
+    marginRight: 10,
+  },
+  addButton: {
+    height: 30,
+    width: 30,
+    backgroundColor: Colors.lightText,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 10,
   },
   taskList: {
     flex: 1,
   },
-  taskItem: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: Colors.background,
-    borderRadius: 5,
-    padding: 15,
-    marginBottom: 10,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  taskTitle: {
-    flex: 1,
+  emptyListText: {
+    textAlign: "center",
     fontSize: 16,
     color: Colors.text,
-  },
-  completedTask: {
-    textDecorationLine: "line-through",
-    color: Colors.lightText,
   },
   logoutButton: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.button,
-    borderRadius: 5,
-    padding: 10,
+    backgroundColor: Colors.danger,
+    borderRadius: 8,
+    padding: 6,
     marginTop: 20,
+    position: "absolute",
+    elevation: 10,
+    top: -10,
+    right: 10,
   },
   buttonText: {
     color: Colors.background,
-    marginLeft: 10,
+    fontSize: 14,
+    textTransform: "uppercase",
+    fontWeight: "bold",
   },
 });
 

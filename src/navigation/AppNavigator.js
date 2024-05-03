@@ -13,21 +13,31 @@ const AppNavigator = () => {
         name="Auth"
         component={AuthScreen}
         options={{
-          headerStyle: { backgroundColor: Colors.lightText, height:100},
+          headerStyle: { elevation: 10 },
           headerTitleStyle: {
             color: Colors.text,
-            fontSize:20,
-            fontWeight:'bold',
+            fontSize: 20,
+            fontWeight: "bold",
           },
-          headerTitleAlign:"center",
-          headerTitle:"Welcome To Create Your Dome",
-          headerBackAllowFontScaling:true
+          headerTitleAlign: "center",
+          headerTitle: "Welcome To Create Your Dome",
+          headerBackAllowFontScaling: true,
         }}
       />
       <Stack.Screen
         name="Todo"
         component={DomeNotes}
-        options={{ title: "Dome Notes" }}
+        options={{
+          headerTitle: "Dome Notes",
+          headerBackAllowFontScaling: true,
+          headerStyle: { elevation: 10 },
+          headerTitleStyle: {
+            color: Colors.text,
+            fontSize: 20,
+            fontWeight: "bold",
+          },
+          headerTitleAlign: "center",
+        }}
       />
     </Stack.Navigator>
   );

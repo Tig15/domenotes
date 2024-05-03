@@ -1,6 +1,6 @@
-import { getFirestore, collection, addDoc, deleteDoc, updateDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, deleteDoc, updateDoc, getDocs, doc } from 'firebase/firestore';
 import firebaseApp from './firebaseAuth';
-
+ 
 const firestore = getFirestore(firebaseApp);
 
 const addTask = async (task) => {
@@ -14,7 +14,8 @@ const addTask = async (task) => {
 
 const deleteTask = async (taskId) => {
   try {
-    await deleteDoc(collection(firestore, 'tasks', taskId));
+    const taskRef = doc(firestore, 'tasks', taskId); 
+    await deleteDoc(taskRef);
   } catch (error) {
     throw error;
   }
@@ -22,11 +23,13 @@ const deleteTask = async (taskId) => {
 
 const updateTask = async (taskId, updatedTask) => {
   try {
-    await updateDoc(collection(firestore, 'tasks', taskId), updatedTask);
+    const taskRef = doc(firestore, 'tasks', taskId); 
+    await updateDoc(taskRef, updatedTask);
   } catch (error) {
     throw error;
   }
 };
+
 
 const getAllTasks = async () => {
   try {

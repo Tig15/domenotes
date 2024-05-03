@@ -7,5 +7,7 @@ export const Colors = {
   lightText: "#666666",
   border: "#CCCCCC",
   button: "#FF6347",
+  secondButton:"#28A745",
+  danger:"#C40C0C"
 };
 

@@ -12,8 +12,7 @@ import { Formik } from "formik";
 import * as yup from "yup";
 import { useNavigation } from "@react-navigation/native";
 import { Colors } from "../assets/Colors";
-import firebaseApp from "../services/firebaseAuth";
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUser, loginUser } from "../services/firebaseAuth";
 
 const windowWidth = Dimensions.get("window").width;
 
@@ -30,17 +29,25 @@ const AuthScreen = () => {
 
   const handleLogin = async (values) => {
     try {
-      const auth = getAuth(firebaseApp);
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        values.email,
-        values.password
-      );
-      const user = userCredential.user;
-      console.log("User signed in:", user);
-      navigation.reset("Todo");
+      await loginUser(values.email, values.password); 
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Todo' }],
+      });
     } catch (error) {
-      console.error("Sign-in error:", error);
+      console.error('Sign-in error:', error.message);
+    }
+  };
+
+  const handleSignUp = async (values) => {
+    try {
+      await createUser(values.email, values.password);
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Todo' }],
+      });
+    } catch (error) {
+      console.error('Sign-up error:', error.message);
     }
   };
 
@@ -89,6 +96,9 @@ const AuthScreen = () => {
           </View>
         )}
       </Formik>
+      {/* <TouchableOpacity style={styles.signupButton} onPress={handleSignUp}>
+        <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity> */}
     </View>
   );
 };
@@ -130,6 +140,15 @@ const styles = StyleSheet.create({
     fontSize:15,
     textTransform:'uppercase'
   },
+  signupButton: {
+    backgroundColor: Colors.secondButton,
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 10,
+    width: windowWidth * 0.75,
+    alignItems: 'center',
+  },
+ 
 });
 
 export default AuthScreen;
