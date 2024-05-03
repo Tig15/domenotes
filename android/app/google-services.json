@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "733327331537",
+    "project_id": "domenotes-c04cc",
+    "storage_bucket": "domenotes-c04cc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:733327331537:android:a23a5a5d3e8bb6718675f0",
+        "android_client_info": {
+          "package_name": "com.domenotes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPv18GRYJ6XZrC3G8SJL2tSWq3r44CqNM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
